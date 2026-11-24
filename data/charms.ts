@@ -1,4 +1,4 @@
-// Lista dos charms ofensivos (usada na aba Meu Personagem)
+// Lista dos charms e as regras de cada um
 export const CHARMS = [
   'Wound',
   'Enflame',
@@ -10,6 +10,10 @@ export const CHARMS = [
   'Overpower',
   'Overflux',
 ];
+
+// chance de cada tier (posição 0 = não tenho)
+export const CHANCES = [0, 0.05, 0.1, 0.11];
+
 export const REGRAS = [
   { nome: 'Wound', tipo: 'elemento', campo: 'physicalDmgMod' },
   { nome: 'Enflame', tipo: 'elemento', campo: 'fireDmgMod' },

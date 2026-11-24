@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { View, FlatList, Text, TextInput, Button, Alert } from 'react-native';
 import CartaoInimigo from '../components/CartaoInimigo';
+import ResultadoCharms from '../components/ResultadoCharms';
 import { buscarInimigo } from '../services/bestiario';
 import { calcularCombinacao } from '../services/calculo';
-import { textoDano } from '../services/elementos';
+import { CHARMS } from '../data/charms';
 import { jogador } from '../data/jogador';
 import { estilos } from '../styles/estilos';
 
@@ -11,6 +12,13 @@ export default function CalculadoraScreen() {
   const [nome, setNome] = useState('');
   const [inimigos, setInimigos] = useState<any[]>([]);
   const [resultado, setResultado] = useState<any[] | null>(null);
+  const [resultadoTodos, setResultadoTodos] = useState<any[] | null>(null);
+
+  // apaga os resultados quando a hunt muda
+  function limparResultados() {
+    setResultado(null);
+    setResultadoTodos(null);
+  }
 
   function adicionar() {
     const encontrado = buscarInimigo(nome);
@@ -28,7 +36,7 @@ export default function CalculadoraScreen() {
     // guarda o inimigo junto com a quantidade (começa vazia)
     setInimigos([...inimigos, { ...encontrado, quantidade: '' }]);
     setNome('');
-    setResultado(null);
+    limparResultados();
   }
 
   function mudarQuantidade(nomeInimigo: string, texto: string) {
@@ -41,7 +49,7 @@ export default function CalculadoraScreen() {
       }
     }
     setInimigos(nova);
-    setResultado(null);
+    limparResultados();
   }
 
   function remover(nomeInimigo: string) {
@@ -52,7 +60,7 @@ export default function CalculadoraScreen() {
       }
     }
     setInimigos(nova);
-    setResultado(null);
+    limparResultados();
   }
 
   function calcular() {
@@ -60,18 +68,29 @@ export default function CalculadoraScreen() {
       Alert.alert('Aviso', 'Adicione inimigos à hunt');
       return;
     }
-    if (jogador.charms.length === 0) {
-      Alert.alert('Aviso', 'Libere charms na aba Meu Personagem');
-      return;
-    }
     const vida = Number(jogador.vidaMaxima);
     const mana = Number(jogador.manaMaxima);
-    const lista = calcularCombinacao(inimigos, jogador.charms, vida, mana);
+
+    // 1ª conta: só com os charms que eu tenho
+    const lista = calcularCombinacao(inimigos, jogador.tiers, vida, mana);
     if (lista === null) {
       Alert.alert('Aviso', 'Informe a quantidade de cada inimigo');
       return;
     }
+
+    // 2ª conta: os charms que eu não tenho entram no tier 3
+    const tiersTodos: { [nome: string]: number } = {};
+    for (let i = 0; i < CHARMS.length; i++) {
+      if (jogador.tiers[CHARMS[i]] > 0) {
+        tiersTodos[CHARMS[i]] = jogador.tiers[CHARMS[i]];
+      } else {
+        tiersTodos[CHARMS[i]] = 3;
+      }
+    }
+    const listaTodos = calcularCombinacao(inimigos, tiersTodos, vida, mana);
+
     setResultado(lista);
+    setResultadoTodos(listaTodos);
   }
 
   // parte de cima da lista: título, caixa de texto e botão
@@ -92,23 +111,25 @@ export default function CalculadoraScreen() {
     </View>
   );
 
-  // parte de baixo da lista: botão de calcular e resultado
+  // parte de baixo da lista: botão de calcular e os dois resultados
   const rodape = (
     <View style={{ marginTop: 10 }}>
       <Button title="Calcular melhor combinação" onPress={calcular} />
 
       {resultado && (
-        <View style={estilos.resultado}>
-          <Text style={estilos.subtitulo}>Melhor combinação</Text>
-          {resultado.length === 0 && (
-            <Text>Nenhum charm liberado ajuda nessa hunt.</Text>
-          )}
-          {resultado.map((item) => (
-            <Text key={item.charm}>
-              {item.charm} → {item.inimigo} ({textoDano(item.valor)})
-            </Text>
-          ))}
-        </View>
+        <ResultadoCharms
+          titulo="Melhor combinação com os seus charms"
+          lista={resultado}
+          marcarNovos={false}
+        />
+      )}
+
+      {resultadoTodos && (
+        <ResultadoCharms
+          titulo="Melhor combinação incluindo os charms que você não tem"
+          lista={resultadoTodos}
+          marcarNovos={true}
+        />
       )}
     </View>
   );

@@ -20,4 +20,19 @@ export const estilos = StyleSheet.create({
     borderColor: '#ccc',
   },
   textoItem: { flex: 1 },
+  tier: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    marginLeft: 4,
+    borderWidth: 1,
+    borderColor: '#999',
+  },
+  tierMarcado: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    marginLeft: 4,
+    borderWidth: 1,
+    borderColor: '#999',
+    backgroundColor: '#cfe3ff',
+  },
 });

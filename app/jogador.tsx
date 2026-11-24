@@ -8,9 +8,9 @@ import { estilos } from '../styles/estilos';
 export default function JogadorScreen() {
   const [vidaMaxima, setVidaMaxima] = useState(jogador.vidaMaxima);
   const [manaMaxima, setManaMaxima] = useState(jogador.manaMaxima);
-  const [liberados, setLiberados] = useState<string[]>(jogador.charms);
+  const [tiers, setTiers] = useState<{ [nome: string]: number }>(jogador.tiers);
 
-  // cada um guarda valor na tela e jogador.ts
+  // cada campo guarda o valor na tela e também no objeto "jogador"
   function mudarVida(texto: string) {
     setVidaMaxima(texto);
     jogador.vidaMaxima = texto;
@@ -21,31 +21,22 @@ export default function JogadorScreen() {
     jogador.manaMaxima = texto;
   }
 
-  function estaLiberado(nomeCharm: string) {
-    for (let i = 0; i < liberados.length; i++) {
-      if (liberados[i] === nomeCharm) {
-        return true;
+  function escolherTier(nomeCharm: string, tier: number) {
+    const novos = { ...tiers, [nomeCharm]: tier };
+    setTiers(novos);
+    jogador.tiers = novos;
+
+    // lista dos charms que tenho (tier 1, 2 ou 3), usada pela calculadora
+    const liberados: string[] = [];
+    for (let i = 0; i < CHARMS.length; i++) {
+      if (novos[CHARMS[i]] > 0) {
+        liberados.push(CHARMS[i]);
       }
     }
-    return false;
+    jogador.charms = liberados;
   }
 
-  function trocarCharm(nomeCharm: string) {
-    let nova: string[] = [];
-    if (estaLiberado(nomeCharm)) {
-      for (let i = 0; i < liberados.length; i++) {
-        if (liberados[i] !== nomeCharm) {
-          nova.push(liberados[i]);
-        }
-      }
-    } else {
-      nova = [...liberados, nomeCharm];
-    }
-    setLiberados(nova);
-    jogador.charms = nova;
-  }
-
-  // campos de cima
+  // parte de cima da lista: os dois campos
   const cabecalho = (
     <View>
       <Text style={estilos.titulo}>Meu Personagem</Text>
@@ -68,7 +59,10 @@ export default function JogadorScreen() {
         placeholder="Ex: 3000"
       />
 
-      <Text style={estilos.subtitulo}>Charms liberados:</Text>
+      <Text style={estilos.subtitulo}>Charms:</Text>
+      <Text style={{ marginBottom: 10 }}>
+        Escolha o tier de cada charm. "Não" é um charm que você não tem.
+      </Text>
     </View>
   );
 
@@ -77,14 +71,14 @@ export default function JogadorScreen() {
       contentContainerStyle={estilos.tela}
       keyboardShouldPersistTaps="handled"
       data={CHARMS}
-      extraData={liberados}
+      extraData={tiers}
       keyExtractor={(item) => item}
       ListHeaderComponent={cabecalho}
       renderItem={({ item }) => (
         <ItemCharm
           nome={item}
-          liberado={estaLiberado(item)}
-          aoTrocar={() => trocarCharm(item)}
+          tier={tiers[item]}
+          aoEscolher={(tier) => escolherTier(item, tier)}
         />
       )}
     />

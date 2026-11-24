@@ -1,12 +1,33 @@
-// Aqui fica só a busca de inimigos no arquivo bestiary.json
+// Aqui ficam as buscas no bestiário (arquivo bestiary.json)
 import bestiario from '../data/bestiary.json';
 
+const lista: any[] = bestiario as any;
+
+// procura um inimigo pelo nome exato (sem diferenciar maiúscula)
 export function buscarInimigo(nome: string) {
   const procurado = nome.trim().toLowerCase();
-  for (let i = 0; i < bestiario.length; i++) {
-    if (bestiario[i].name.toLowerCase() === procurado) {
-      return bestiario[i];
+  for (let i = 0; i < lista.length; i++) {
+    if (lista[i].name.toLowerCase() === procurado) {
+      return lista[i];
     }
   }
   return null;
+}
+
+// devolve até 5 nomes que contêm o texto digitado
+export function sugerirNomes(texto: string) {
+  const procurado = texto.trim().toLowerCase();
+  const nomes: string[] = [];
+  if (procurado.length < 2) {
+    return nomes;
+  }
+  for (let i = 0; i < lista.length; i++) {
+    if (lista[i].name.toLowerCase().includes(procurado)) {
+      nomes.push(lista[i].name);
+      if (nomes.length === 5) {
+        break;
+      }
+    }
+  }
+  return nomes;
 }
