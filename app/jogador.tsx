@@ -10,7 +10,7 @@ export default function JogadorScreen() {
   const [manaMaxima, setManaMaxima] = useState(jogador.manaMaxima);
   const [tiers, setTiers] = useState<{ [nome: string]: number }>(jogador.tiers);
 
-  // cada campo guarda o valor na tela e também no objeto "jogador"
+  // guarda o valor aqui vvv
   function mudarVida(texto: string) {
     setVidaMaxima(texto);
     jogador.vidaMaxima = texto;
@@ -26,7 +26,7 @@ export default function JogadorScreen() {
     setTiers(novos);
     jogador.tiers = novos;
 
-    // lista dos charms que tenho (tier 1, 2 ou 3), usada pela calculadora
+    // lista dos charms q tenho
     const liberados: string[] = [];
     for (let i = 0; i < CHARMS.length; i++) {
       if (novos[CHARMS[i]] > 0) {
@@ -36,7 +36,7 @@ export default function JogadorScreen() {
     jogador.charms = liberados;
   }
 
-  // parte de cima da lista: os dois campos
+
   const cabecalho = (
     <View>
       <Text style={estilos.titulo}>Meu Personagem</Text>

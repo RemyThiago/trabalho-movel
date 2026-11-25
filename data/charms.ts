@@ -1,4 +1,4 @@
-// Lista dos charms e as regras de cada um
+// charms
 export const CHARMS = [
   'Wound',
   'Enflame',
@@ -11,7 +11,7 @@ export const CHARMS = [
   'Overflux',
 ];
 
-// chance de cada tier (posição 0 = não tenho)
+// % de chance de ativação em cada tier
 export const CHANCES = [0, 0.05, 0.1, 0.11];
 
 export const REGRAS = [

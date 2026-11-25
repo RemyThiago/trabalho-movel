@@ -1,20 +1,29 @@
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { View, FlatList, Text, TextInput, Button, Alert } from 'react-native';
+import { View, FlatList, Text, Button, Alert } from 'react-native';
+import BuscaInimigo from '../components/BuscaInimigo';
 import CartaoInimigo from '../components/CartaoInimigo';
 import ResultadoCharms from '../components/ResultadoCharms';
-import { buscarInimigo } from '../services/bestiario';
+import { buscarInimigo, sugerirNomes } from '../services/bestiario';
 import { calcularCombinacao } from '../services/calculo';
 import { CHARMS } from '../data/charms';
 import { jogador } from '../data/jogador';
 import { estilos } from '../styles/estilos';
 
 export default function CalculadoraScreen() {
+  const insets = useSafeAreaInsets();
   const [nome, setNome] = useState('');
   const [inimigos, setInimigos] = useState<any[]>([]);
   const [resultado, setResultado] = useState<any[] | null>(null);
   const [resultadoTodos, setResultadoTodos] = useState<any[] | null>(null);
 
-  // apaga os resultados quando a hunt muda
+  // nomes sugeridos
+  let sugestoes = sugerirNomes(nome);
+  if (sugestoes.length === 1 && sugestoes[0].toLowerCase() === nome.trim().toLowerCase()) {
+    sugestoes = [];
+  }
+
+  // apaga os resultados
   function limparResultados() {
     setResultado(null);
     setResultadoTodos(null);
@@ -26,14 +35,14 @@ export default function CalculadoraScreen() {
       Alert.alert('Aviso', 'Inimigo não encontrado');
       return;
     }
-    // não deixa adicionar o mesmo inimigo duas vezes
+    // não duplicar
     for (let i = 0; i < inimigos.length; i++) {
       if (inimigos[i].name === encontrado.name) {
         Alert.alert('Aviso', 'Esse inimigo já está na lista');
         return;
       }
     }
-    // guarda o inimigo junto com a quantidade (começa vazia)
+
     setInimigos([...inimigos, { ...encontrado, quantidade: '' }]);
     setNome('');
     limparResultados();
@@ -63,6 +72,11 @@ export default function CalculadoraScreen() {
     limparResultados();
   }
 
+  function removerTodos() {
+    setInimigos([]);
+    limparResultados();
+  }
+
   function calcular() {
     if (inimigos.length === 0) {
       Alert.alert('Aviso', 'Adicione inimigos à hunt');
@@ -71,21 +85,17 @@ export default function CalculadoraScreen() {
     const vida = Number(jogador.vidaMaxima);
     const mana = Number(jogador.manaMaxima);
 
-    // 1ª conta: só com os charms que eu tenho
+    // conta com meus charms
     const lista = calcularCombinacao(inimigos, jogador.tiers, vida, mana);
     if (lista === null) {
       Alert.alert('Aviso', 'Informe a quantidade de cada inimigo');
       return;
     }
 
-    // 2ª conta: os charms que eu não tenho entram no tier 3
+    // conta com os melhores charms possiveis
     const tiersTodos: { [nome: string]: number } = {};
     for (let i = 0; i < CHARMS.length; i++) {
-      if (jogador.tiers[CHARMS[i]] > 0) {
-        tiersTodos[CHARMS[i]] = jogador.tiers[CHARMS[i]];
-      } else {
-        tiersTodos[CHARMS[i]] = 3;
-      }
+      tiersTodos[CHARMS[i]] = 3;
     }
     const listaTodos = calcularCombinacao(inimigos, tiersTodos, vida, mana);
 
@@ -93,25 +103,23 @@ export default function CalculadoraScreen() {
     setResultadoTodos(listaTodos);
   }
 
-  // parte de cima da lista: título, caixa de texto e botão
+  // titulo e pesquisa
   const cabecalho = (
     <View>
       <Text style={estilos.titulo}>Calculadora de Charms</Text>
-
-      <Text>Nome do inimigo:</Text>
-      <TextInput
-        style={estilos.input}
-        value={nome}
-        onChangeText={setNome}
-        placeholder="Ex: Rotworm"
+      <BuscaInimigo
+        nome={nome}
+        aoMudarNome={setNome}
+        sugestoes={sugestoes}
+        aoEscolher={setNome}
+        aoAdicionar={adicionar}
+        total={inimigos.length}
+        aoRetirarTodos={removerTodos}
       />
-      <Button title="Adicionar" onPress={adicionar} />
-
-      <Text style={{ marginTop: 20 }}>Inimigos na hunt: {inimigos.length}</Text>
     </View>
   );
 
-  // parte de baixo da lista: botão de calcular e os dois resultados
+  // botao de calcular e os 2 resultados
   const rodape = (
     <View style={{ marginTop: 10 }}>
       <Button title="Calcular melhor combinação" onPress={calcular} />
@@ -126,7 +134,7 @@ export default function CalculadoraScreen() {
 
       {resultadoTodos && (
         <ResultadoCharms
-          titulo="Melhor combinação incluindo os charms que você não tem"
+          titulo="Melhor combinação com todos os charms no tier 3"
           lista={resultadoTodos}
           marcarNovos={true}
         />
@@ -136,7 +144,7 @@ export default function CalculadoraScreen() {
 
   return (
     <FlatList
-      contentContainerStyle={estilos.tela}
+      contentContainerStyle={[estilos.tela, { paddingBottom: insets.bottom + 30 }]} 
       keyboardShouldPersistTaps="handled"
       data={inimigos}
       keyExtractor={(item) => item.name}
@@ -146,7 +154,7 @@ export default function CalculadoraScreen() {
       renderItem={({ item }) => (
         <CartaoInimigo
           inimigo={item}
-          aoMudarQuantidade={(texto) => mudarQuantidade(item.name, texto)}
+          aoMudarQuantidade={(texto: string) => mudarQuantidade(item.name, texto)}
           aoRemover={() => remover(item.name)}
         />
       )}

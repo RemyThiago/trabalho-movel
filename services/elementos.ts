@@ -1,4 +1,3 @@
-// Elementos dos charms e funções de apoio
 export const ELEMENTOS = [
   { nome: 'Physical', campo: 'physicalDmgMod' },
   { nome: 'Earth', campo: 'earthDmgMod' },
@@ -9,7 +8,7 @@ export const ELEMENTOS = [
   { nome: 'Holy', campo: 'holyDmgMod' },
 ];
 
-// transforma o multiplicador em texto de porcentagem
+// deixar em % pra ficar bonitinho
 export function textoDano(valor: number) {
   const porcentagem = Math.round(valor * 100);
   if (valor < 0) {

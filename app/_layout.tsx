@@ -1,17 +1,21 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 
-export default function RootLayout() {
+export default function Layout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer>
         <Drawer.Screen
           name="index"
-          options={{ title: 'Calculadora de Charms', drawerLabel: 'Calculadora' }}
+          options={{ drawerLabel: 'Calculadora', title: 'Calculadora de Charms' }}
         />
         <Drawer.Screen
           name="jogador"
-          options={{ title: 'Meu Personagem', drawerLabel: 'Meu Personagem' }}
+          options={{ drawerLabel: 'Meu Personagem', title: 'Meu Personagem' }}
+        />
+        <Drawer.Screen
+          name="sobre"
+          options={{ drawerLabel: 'Sobre', title: 'Sobre' }}
         />
       </Drawer>
     </GestureHandlerRootView>

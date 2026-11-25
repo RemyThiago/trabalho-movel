@@ -1,4 +1,4 @@
-// Uma linha da lista de charms: nome e escolha do tier
+// lista de charms na aba personagem
 import { View, Text } from 'react-native';
 import { estilos } from '../styles/estilos';
 

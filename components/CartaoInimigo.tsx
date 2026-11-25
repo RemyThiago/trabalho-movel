@@ -1,39 +1,37 @@
-// Quadro com os dados de um inimigo e a quantidade dele na hunt
 import { View, Text, TextInput, Button } from 'react-native';
 import { textoDano } from '../services/elementos';
-import { estilos } from '../styles/estilos';
+import { estilosCartao } from '../styles/estilosCartao';
 
-type Props = {
-  inimigo: any;
-  aoMudarQuantidade: (texto: string) => void;
-  aoRemover: () => void;
-};
-
-export default function CartaoInimigo(props: Props) {
-  const inimigo = props.inimigo;
-
+export default function CartaoInimigo({ inimigo, aoMudarQuantidade, aoRemover }: any) {
   return (
-    <View style={estilos.resultado}>
-      <Text style={estilos.subtitulo}>{inimigo.name}</Text>
-      <Text>Vida: {inimigo.hitpoints}</Text>
-      <Text>Physical: {textoDano(inimigo.physicalDmgMod)}</Text>
-      <Text>Earth: {textoDano(inimigo.earthDmgMod)}</Text>
-      <Text>Fire: {textoDano(inimigo.fireDmgMod)}</Text>
-      <Text>Energy: {textoDano(inimigo.energyDmgMod)}</Text>
-      <Text>Ice: {textoDano(inimigo.iceDmgMod)}</Text>
-      <Text>Death: {textoDano(inimigo.deathDmgMod)}</Text>
-      <Text>Holy: {textoDano(inimigo.holyDmgMod)}</Text>
+    <View style={estilosCartao.caixa}>
+      <Text style={estilosCartao.nome}>{inimigo.name}</Text>
 
-      <Text style={{ marginTop: 10 }}>Quantidade na hunt:</Text>
+      <View style={estilosCartao.colunas}>
+        <View style={estilosCartao.coluna}>
+          <Text style={estilosCartao.linha}>Vida: {inimigo.hitpoints}</Text>
+          <Text style={estilosCartao.linha}>Physical: {textoDano(inimigo.physicalDmgMod)}</Text>
+          <Text style={estilosCartao.linha}>Earth: {textoDano(inimigo.earthDmgMod)}</Text>
+          <Text style={estilosCartao.linha}>Fire: {textoDano(inimigo.fireDmgMod)}</Text>
+        </View>
+
+        <View style={estilosCartao.coluna}>
+          <Text style={estilosCartao.linha}>Energy: {textoDano(inimigo.energyDmgMod)}</Text>
+          <Text style={estilosCartao.linha}>Ice: {textoDano(inimigo.iceDmgMod)}</Text>
+          <Text style={estilosCartao.linha}>Death: {textoDano(inimigo.deathDmgMod)}</Text>
+          <Text style={estilosCartao.linha}>Holy: {textoDano(inimigo.holyDmgMod)}</Text>
+        </View>
+      </View>
+
+      <Text style={estilosCartao.rotuloQuantidade}>Quantidade na hunt:</Text>
       <TextInput
-        style={estilos.input}
+        style={estilosCartao.input}
         value={inimigo.quantidade}
-        onChangeText={props.aoMudarQuantidade}
+        onChangeText={aoMudarQuantidade}
         keyboardType="numeric"
-        placeholder="Ex: 600"
       />
 
-      <Button title="Remover" onPress={props.aoRemover} />
+      <Button title="Remover" onPress={aoRemover} />
     </View>
   );
 }

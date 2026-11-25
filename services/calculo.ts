@@ -1,13 +1,13 @@
-// Aqui fica só o cálculo da melhor combinação de charms
+// desgraça de calculo da melhor combinação
 import { REGRAS, CHANCES } from '../data/charms';
 
-// 8% da vida do inimigo dividido por 5% = 160%
+// limite por causa do overflux/overpower
 const LIMITE = 1.6;
 
-// os charms causam 5% da vida do inimigo
+// os demais
 const BASE = 0.05;
 
-// quanto o charm vale contra um inimigo (1 = dano normal, 1.25 = 125%)
+// modificador com a resistencia do inimigo
 export function valorDoCharm(regra: any, inimigo: any, vida: number, mana: number) {
   if (regra.tipo === 'elemento') {
     return inimigo[regra.campo];
@@ -30,7 +30,7 @@ export function calcularCombinacao(
   vida: number,
   mana: number
 ) {
-  // confere se pelo menos um inimigo tem quantidade
+  // pra ter ctz q vc colocou inimigos
   let total = 0;
   for (let i = 0; i < inimigos.length; i++) {
     total = total + Number(inimigos[i].quantidade);
@@ -39,10 +39,10 @@ export function calcularCombinacao(
     return null;
   }
 
-  // marca quais charms e inimigos já foram usados
+
   const charmUsado: boolean[] = [];
   for (let c = 0; c < REGRAS.length; c++) {
-    // charm com tier 0 (não tenho) já começa como "usado"
+    // charm tier 0 considerado usado
     charmUsado.push(!(tiers[REGRAS[c].nome] > 0));
   }
   const inimigoUsado: boolean[] = [];
@@ -52,7 +52,7 @@ export function calcularCombinacao(
 
   const resultado: any[] = [];
 
-  // em cada rodada, escolhe o melhor par (charm, inimigo) que sobrou
+  // matematica por pareamento
   for (let rodada = 0; rodada < inimigos.length; rodada++) {
     let melhorPontos = 0;
     let melhorC = -1;
@@ -64,7 +64,6 @@ export function calcularCombinacao(
           const valor = valorDoCharm(REGRAS[c], inimigos[m], vida, mana);
           const quantidade = Number(inimigos[m].quantidade);
           const chance = CHANCES[tiers[REGRAS[c].nome]];
-          // (vida x quantidade) x 0.05 x resistência x chance do tier
           const pontos = inimigos[m].hitpoints * quantidade * BASE * valor * chance;
           if (pontos > melhorPontos) {
             melhorPontos = pontos;
